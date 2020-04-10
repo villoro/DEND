@@ -14,7 +14,7 @@ import configparser
 
 # CONFIG
 config = configparser.ConfigParser()
-config.read('dwh.cfg')
+config.read("dwh.cfg")
 
 # TABLES DEFINITION
 tables = {
@@ -61,7 +61,7 @@ tables = {
         "artist_id": "TEXT",
         "session_id": "INT",
         "location": "TEXT",
-        "user_agent": "TEXT"
+        "user_agent": "TEXT",
     },
     "users": {
         "id": "INT PRIMARY KEY NOT NULL",
@@ -85,23 +85,23 @@ tables = {
         "longitude": "FLOAT",
     },
     "time": {
-        "start_time": "BIGINT", 
-        "hour": "INT", 
-        "day": "INT", 
+        "start_time": "BIGINT",
+        "hour": "INT",
+        "day": "INT",
         "week": "INT",
         "month": "INT",
-        "year": "INT", 
+        "year": "INT",
         "weekday": "INT",
-    }
+    },
 }
 
 
 # CREATION AND DELETION
 create_table_queries = {
     tablename: "CREATE TABLE IF NOT EXISTS {name} ({data});".format(
-        name=tablename,
-        data=", ".join([f"{col} {text}" for col, text in table.items()])
-    ) for tablename, table in tables.items()
+        name=tablename, data=", ".join([f"{col} {text}" for col, text in table.items()])
+    )
+    for tablename, table in tables.items()
 }
 drop_table_queries = {name: f"DROP TABLE IF EXISTS {name}" for name in tables.keys()}
 
@@ -116,20 +116,17 @@ staging_events_copy = raw_copy.format(
     table="staging_events",
     s3=config.get("S3", "LOG_DATA"),
     arn=config.get("IAM_ROLE", "ARN"),
-    json_fmt=config.get("S3", "LOG_JSONPATH")
+    json_fmt=config.get("S3", "LOG_JSONPATH"),
 )
 
 staging_songs_copy = raw_copy.format(
     table="staging_songs",
     s3=config.get("S3", "SONG_DATA"),
     arn=config.get("IAM_ROLE", "ARN"),
-    json_fmt="'auto'"
+    json_fmt="'auto'",
 )
 
-copy_table_queries = {
-    "staging_events": staging_events_copy,
-    "staging_songs": staging_songs_copy
-}
+copy_table_queries = {"staging_events": staging_events_copy, "staging_songs": staging_songs_copy}
 
 
 # FINAL TABLES
@@ -199,4 +196,3 @@ insert_table_queries = {
     "users": user_table_insert,
     "songplays": songplay_table_insert,
 }
-
