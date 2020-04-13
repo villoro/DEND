@@ -2,21 +2,58 @@ from airflow.hooks.postgres_hook import PostgresHook
 from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
 
+
 class DataQualityOperator(BaseOperator):
 
-    ui_color = '#89DA59'
+    ui_color = "#89DA59"
+
+    query = "SELECT count(*) FROM {table} WHERE {col} IS NULL"
 
     @apply_defaults
-    def __init__(self,
-                 # Define your operators params (with defaults) here
-                 # Example:
-                 # conn_id = your-connection-name
-                 *args, **kwargs):
+    def __init__(self, dict_checks=None, redshift_conn_id="redshift", *args, **kwargs):
+        """
+            Operator that checks the data quality. It needs a dict_checks with the checks:
+                * key:      table name
+                * value:    list with columns that must be not null
+        """
+
+        # Check input params
+        for name, param in [("table", table), ("dict_checks", dict_checks)]:
+            if param is None:
+                msg = f"{name.title()} param must be not None"
+                log.error(msg)
+                raise ValueError(msg)
 
         super(DataQualityOperator, self).__init__(*args, **kwargs)
-        # Map params here
-        # Example:
-        # self.conn_id = conn_id
+
+        # Query params
+        self.table = table
+        self.cols = dict_checks
+
+        # Hooks
+        self.redshift = PostgresHook(redshift_conn_id)
 
     def execute(self, context):
-        self.log.info('DataQualityOperator not implemented yet')
+
+        errors = {}
+        for table, columns in self.dict_checks.items():
+
+            self.log.info(f"Checking that columns {columns} are not null for table '{table}'")
+
+            errors[table] = {}
+            for col in columns:
+                records = self.redshift.get_records(query.format(table=table, col=col))
+
+                if len(records) < 1 or len(records[0]) < 1:
+                    errors[table][col] = "No results"
+                    log.error(f"Data quality check failed. {table} returned no results")
+                    continue  # Do the next column
+
+                num_records = records[0][0]
+                if num_records > 0:
+                    errors[table][col] = "There are nulls"
+                    log.error(f"Data quality check failed. {table} contained 0 rows")
+
+        # The idea is to first check all errors and then raise the exception with all info
+        if errors:
+            raise ValueError(f"There are errors: {errors}")
