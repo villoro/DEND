@@ -5,9 +5,14 @@ from airflow.utils.decorators import apply_defaults
 
 class DataQualityOperator(BaseOperator):
 
-    ui_color = "#89DA59"
+    ui_color = "#C5E1A5"
 
-    query = "SELECT count(*) FROM {table} WHERE {col} IS NULL"
+    query = """
+        SELECT
+            count(CASE WHEN {col} IS NULL THEN 1 ELSE 0 END) AS n_nulls,
+            count(*) AS n_total
+        FROM {table}
+    """
 
     @apply_defaults
     def __init__(self, dict_checks=None, redshift_conn_id="redshift", *args, **kwargs):
@@ -36,7 +41,7 @@ class DataQualityOperator(BaseOperator):
 
             errors[table] = {}
             for col in columns:
-                records = redshift.get_records(query.format(table=table, col=col))
+                records = redshift.get_records(self.query.format(table=table, col=col))
 
                 if len(records) < 1 or len(records[0]) < 1:
                     errors[table][col] = "No results"
@@ -45,8 +50,8 @@ class DataQualityOperator(BaseOperator):
 
                 num_records = records[0][0]
                 if num_records > 0:
-                    errors[table][col] = "There are nulls"
-                    log.error(f"Data quality check failed. {table} contained 0 rows")
+                    errors[table][col] = f"There are nulls {num_records} nulls"
+                    log.error(f"Data quality check failed. {table} contains {num_records} nulls")
 
         # The idea is to first check all errors and then raise the exception with all info
         if errors:

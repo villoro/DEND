@@ -5,7 +5,7 @@ from airflow.utils.decorators import apply_defaults
 
 
 class StageToRedshiftOperator(BaseOperator):
-    ui_color = "#358140"
+    ui_color = "#FFF59D"
 
     query = """
         COPY {table} FROM '{path_s3}'
