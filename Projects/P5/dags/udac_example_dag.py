@@ -11,7 +11,14 @@ from airflow.operators import (
 from helpers import SqlQueries
 
 
-default_args = {"owner": "udacity", "start_date": datetime(2019, 1, 12)}
+default_args = {
+    "owner": "udacity",
+    "start_date": datetime(2020, 1, 1),
+    "depends_on_past": False,
+    "retries": 3,
+    "retry_delay": timedelta(minutes=5),
+    "catchup": False,
+}
 
 dag = DAG(
     "udac_example_dag",
@@ -23,11 +30,19 @@ dag = DAG(
 start_operator = DummyOperator(task_id="Begin_execution", dag=dag)
 
 stage_events_to_redshift = StageToRedshiftOperator(
-    task_id="Stage_events", dag=dag, table="staging_events", path_s3="s3://udacity-dend/log_data"
+    task_id="Stage_events",
+    dag=dag,
+    table="staging_events",
+    path_s3="s3://udacity-dend/log_data",
+    json_fmt="s3://udacity-dend/log_json_path.json",
 )
 
 stage_songs_to_redshift = StageToRedshiftOperator(
-    task_id="Stage_songs", dag=dag, table="staging_songs", path_s3="s3://udacity-dend/song_data"
+    task_id="Stage_songs",
+    dag=dag,
+    table="staging_songs",
+    path_s3="s3://udacity-dend/song_data",
+    json_fmt="auto",
 )
 
 load_songplays_table = LoadFactOperator(
@@ -94,7 +109,6 @@ stage_songs_to_redshift >> load_artist_dimension_table
 load_songplays_table >> load_time_dimension_table
 
 # Data quality
-load_songplays_table >> run_quality_checks
 load_user_dimension_table >> run_quality_checks
 load_song_dimension_table >> run_quality_checks
 load_artist_dimension_table >> run_quality_checks

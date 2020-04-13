@@ -10,8 +10,8 @@ class StageToRedshiftOperator(BaseOperator):
     query = """
         COPY {table} FROM '{path_s3}'
         ACCESS_KEY_ID '{aws_id}' SECRET_ACCESS_KEY '{aws_password}'
-        IGNOREHEADER {ignore_headers}
-        DELIMITER '{delimiter}'
+        region '{region_s3}'
+        json '{json_fmt}'
     """
 
     @apply_defaults
@@ -19,8 +19,8 @@ class StageToRedshiftOperator(BaseOperator):
         self,
         table=None,
         path_s3=None,
-        ignore_headers=1,
-        delimiter=",",
+        region_s3="us-west-2",
+        json_fmt="auto",
         redshift_conn_id="redshift",
         aws_credentials_id="aws_credentials",
         *args,
@@ -32,8 +32,8 @@ class StageToRedshiftOperator(BaseOperator):
         # Query params
         self.table = table
         self.path_s3 = path_s3
-        self.ignore_headers = ignore_headers
-        self.delimiter = delimiter
+        self.region_s3 = region_s3
+        self.json_fmt = json_fmt
 
         # Hooks
         self.redshift_conn_id = redshift_conn_id
@@ -54,9 +54,9 @@ class StageToRedshiftOperator(BaseOperator):
             self.query.format(
                 table=self.table,
                 path_s3=self.path_s3,
+                region_s3=self.region_s3,
                 aws_id=aws.access_key,
                 aws_password=aws.secret_key,
-                ignore_headers=self.ignore_headers,
-                delimiter=self.delimiter,
+                json_fmt=self.json_fmt,
             )
         )
