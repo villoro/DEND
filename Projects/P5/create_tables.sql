@@ -83,8 +83,3 @@ CREATE TABLE public.users (
 	"level" varchar(256),
 	CONSTRAINT users_pkey PRIMARY KEY (userid)
 );
-
-
-
-
-

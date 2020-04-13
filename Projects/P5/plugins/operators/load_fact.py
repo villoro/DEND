@@ -7,8 +7,6 @@ class LoadFactOperator(BaseOperator):
 
     ui_color = "#F98866"
 
-    query_insert
-
     @apply_defaults
     def __init__(self, table=None, query_select=None, redshift_conn_id="redshift", *args, **kwargs):
 
@@ -26,8 +24,10 @@ class LoadFactOperator(BaseOperator):
         self.query_select = query_select
 
         # Hooks
-        self.redshift = PostgresHook(redshift_conn_id)
+        self.redshift_conn_id = redshift_conn_id
 
     def execute(self, context):
+
+        redshift = PostgresHook(self.redshift_conn_id)
         self.log.info(f"Loading '{self.table}' fact table")
-        self.redshift.run(f"INSERT INTO {self.table} (self.query_select);")
+        redshift.run(f"INSERT INTO {self.table} (self.query_select);")

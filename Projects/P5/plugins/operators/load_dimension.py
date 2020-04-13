@@ -24,8 +24,11 @@ class LoadDimensionOperator(BaseOperator):
         self.query_select = query_select
 
         # Hooks
-        self.redshift = PostgresHook(redshift_conn_id)
+        self.redshift_conn_id = redshift_conn_id
 
     def execute(self, context):
+
+        redshift = PostgresHook(self.redshift_conn_id)
+
         self.log.info(f"Loading '{self.table}' dimension table")
-        self.redshift.run(f"INSERT INTO {self.table} (self.query_select);")
+        redshift.run(f"INSERT INTO {self.table} (self.query_select);")

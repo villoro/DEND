@@ -23,11 +23,11 @@ dag = DAG(
 start_operator = DummyOperator(task_id="Begin_execution", dag=dag)
 
 stage_events_to_redshift = StageToRedshiftOperator(
-    task_id="Stage_events", dag=dag, table="staging_events", path_s3=None  # TODO
+    task_id="Stage_events", dag=dag, table="staging_events", path_s3="s3://udacity-dend/log_data"
 )
 
 stage_songs_to_redshift = StageToRedshiftOperator(
-    task_id="Stage_songs", dag=dag, table="staging_songs", path_s3=None  # TODO
+    task_id="Stage_songs", dag=dag, table="staging_songs", path_s3="s3://udacity-dend/song_data"
 )
 
 load_songplays_table = LoadFactOperator(

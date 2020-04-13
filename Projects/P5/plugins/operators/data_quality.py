@@ -18,11 +18,10 @@ class DataQualityOperator(BaseOperator):
         """
 
         # Check input params
-        for name, param in [("table", table), ("dict_checks", dict_checks)]:
-            if param is None:
-                msg = f"{name.title()} param must be not None"
-                log.error(msg)
-                raise ValueError(msg)
+        if dict_checks is None:
+            msg = "dict_checks param must be not None"
+            log.error(msg)
+            raise ValueError(msg)
 
         super(DataQualityOperator, self).__init__(*args, **kwargs)
 
@@ -31,9 +30,11 @@ class DataQualityOperator(BaseOperator):
         self.cols = dict_checks
 
         # Hooks
-        self.redshift = PostgresHook(redshift_conn_id)
+        self.redshift_conn_id = redshift_conn_id
 
     def execute(self, context):
+
+        redshift = PostgresHook(self.redshift_conn_id)
 
         errors = {}
         for table, columns in self.dict_checks.items():
@@ -42,7 +43,7 @@ class DataQualityOperator(BaseOperator):
 
             errors[table] = {}
             for col in columns:
-                records = self.redshift.get_records(query.format(table=table, col=col))
+                records = redshift.get_records(query.format(table=table, col=col))
 
                 if len(records) < 1 or len(records[0]) < 1:
                     errors[table][col] = "No results"
