@@ -10,13 +10,6 @@ class LoadDimensionOperator(BaseOperator):
     @apply_defaults
     def __init__(self, table=None, query_select=None, redshift_conn_id="redshift", *args, **kwargs):
 
-        # Check input params
-        for name, param in [("table", table), ("query_select", query_select)]:
-            if param is None:
-                msg = f"{name.title()} param must be not None"
-                log.error(msg)
-                raise ValueError(msg)
-
         super(LoadDimensionOperator, self).__init__(*args, **kwargs)
 
         # Query params

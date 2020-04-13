@@ -19,28 +19,21 @@ class StageToRedshiftOperator(BaseOperator):
         self,
         table=None,
         path_s3=None,
-        delimiter=",",
         ignore_headers=1,
+        delimiter=",",
         redshift_conn_id="redshift",
         aws_credentials_id="aws_credentials",
         *args,
         **kwargs,
     ):
 
-        # Check input params
-        for name, param in [("table", table), ("path_s3", path_s3)]:
-            if param is None:
-                msg = f"{name.title()} param must be not None"
-                log.error(msg)
-                raise ValueError(msg)
-
         super(StageToRedshiftOperator, self).__init__(*args, **kwargs)
 
         # Query params
         self.table = table
         self.path_s3 = path_s3
-        self.delimiter = delimiter
         self.ignore_headers = ignore_headers
+        self.delimiter = delimiter
 
         # Hooks
         self.redshift_conn_id = redshift_conn_id

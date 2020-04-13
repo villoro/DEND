@@ -17,12 +17,6 @@ class DataQualityOperator(BaseOperator):
                 * value:    list with columns that must be not null
         """
 
-        # Check input params
-        if dict_checks is None:
-            msg = "dict_checks param must be not None"
-            log.error(msg)
-            raise ValueError(msg)
-
         super(DataQualityOperator, self).__init__(*args, **kwargs)
 
         # Checks
