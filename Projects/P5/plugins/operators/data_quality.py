@@ -25,9 +25,8 @@ class DataQualityOperator(BaseOperator):
 
         super(DataQualityOperator, self).__init__(*args, **kwargs)
 
-        # Query params
-        self.table = table
-        self.cols = dict_checks
+        # Checks
+        self.dict_checks = dict_checks
 
         # Hooks
         self.redshift_conn_id = redshift_conn_id
