@@ -9,7 +9,7 @@ class DataQualityOperator(BaseOperator):
 
     query = """
         SELECT
-            count(CASE WHEN {col} IS NULL THEN 1 ELSE 0 END) AS n_nulls,
+            sum(CASE WHEN {col} IS NULL THEN 1 ELSE 0 END) AS n_nulls,
             count(*) AS n_total
         FROM {table}
     """
@@ -45,13 +45,13 @@ class DataQualityOperator(BaseOperator):
 
                 if len(records) < 1 or len(records[0]) < 1:
                     errors[table][col] = "No results"
-                    log.error(f"Data quality check failed. {table} returned no results")
+                    self.log.error(f"Data check failed. {table} returned no results")
                     continue  # Do the next column
 
                 num_records = records[0][0]
                 if num_records > 0:
                     errors[table][col] = f"There are nulls {num_records} nulls"
-                    log.error(f"Data quality check failed. {table} contains {num_records} nulls")
+                    self.log.error(f"Data check failed. {table} contains {num_records} nulls")
 
         # The idea is to first check all errors and then raise the exception with all info
         if errors:

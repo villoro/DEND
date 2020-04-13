@@ -85,10 +85,10 @@ run_quality_checks = DataQualityOperator(
     task_id="Run_data_quality_checks",
     dag=dag,
     dict_checks={
-        "songplays": ["songplay_id", "sessionid", "start_time"],
+        "songplays": ["playid", "sessionid", "start_time"],
         "users": ["userid"],
-        "songs": ["song_id"],
-        "artists": ["artist_id"],
+        "songs": ["songid"],
+        "artists": ["artistid"],
         "time": ["start_time"],
     },
 )
