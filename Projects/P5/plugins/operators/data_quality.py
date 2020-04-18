@@ -54,5 +54,6 @@ class DataQualityOperator(BaseOperator):
                     self.log.error(f"Data check failed. {table} contains {num_records} nulls")
 
         # The idea is to first check all errors and then raise the exception with all info
-        if errors:
+        # This will only happen if at least a tables has an error
+        if any([bool(x) for x in errors.values()]):
             raise ValueError(f"There are errors: {errors}")
