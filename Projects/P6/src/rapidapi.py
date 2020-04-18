@@ -191,24 +191,18 @@ def get_pairs():
         Create a list with tuples with pairs of airports. Like:
             [("BCN", "CAG"), ("GRO", "CAG")]
 
-        This is created using all possible combinations
-            * from: congig.cfg/AIRPORTS/ORIGINDS
-            * all possible airports
+        This is created using all possible combinations from:
+            congig.cfg/AIRPORTS/ORIGINDS
 
         And might be limited the size using congig.cfg/AIRPORTS/LIMIT
     """
 
-    df = pd.read_pickle(f"{config['PATHS']['DATA']}airports.pickle")
-
-    # All possible airports
-    airports = df["iata_code"].dropna().unique()
-
     # My airports
-    origins = config["AIRPORTS"]["ORIGINS"].split(",")
+    airports = config["AIRPORTS"]["ORIGINS"].split(",")
 
     pairs = []
 
-    for origin in origins:
+    for origin in airports:
         for dest in airports:
             if dest != origin:
                 # Append flights from both directions
