@@ -18,7 +18,7 @@ config.read(f"{path_root}config.cfg")
 
 LOG_CONFIG = {
     "handlers": [
-        {"sink": sys.stdout, "level": "DEBUG"},
+        {"sink": sys.stdout, "level": config["LOG"]["LEVEL"]},
         {"sink": f"{config['PATHS']['LOGS']}/{date.today():%Y_%m_%d}.log", "level": "INFO"},
     ]
 }
