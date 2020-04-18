@@ -62,6 +62,6 @@ def store_airports():
     df = get_airports()
     df = fix_encodings(df)
 
-    path = f"{config['PATHS']['DATA']}airports.pickle"
-    df.to_pickle(path)
-    log.info(f"Airport data exported to '{path}'")
+    uri = f"{config['PATHS']['DATA']}airports.pickle"
+    df.to_pickle(uri)
+    log.info(f"Airport data exported to '{uri}'")

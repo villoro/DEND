@@ -186,15 +186,53 @@ def query_pair(origin, destination, n_days=366):
         log.warning(f"No flights from '{origin}' to '{destination}'")
 
 
-def retrive_all_flights(airports_pairs):
+def get_pairs():
     """
-        Get a dataframe with all flights
+        Create a list with tuples with pairs of airports. Like:
+            [("BCN", "CAG"), ("GRO", "CAG")]
 
-        Args:
-            airports_pairs:  iterable with tuples containing tuple with 2 airports
-                             for example [("BCN", "CAG"), ("GRO", "CAG")]
+        This is created using all possible combinations
+            * from: congig.cfg/AIRPORTS/ORIGINDS
+            * all possible airports
+
+        And might be limited the size using congig.cfg/AIRPORTS/LIMIT
     """
 
+    df = pd.read_pickle(f"{config['PATHS']['DATA']}airports.pickle")
+
+    # All possible airports
+    airports = df["iata_code"].dropna().unique()
+
+    # My airports
+    origins = config["AIRPORTS"]["ORIGINS"].split(",")
+
+    pairs = []
+
+    for origin in origins:
+        for dest in airports:
+            if dest != origin:
+                # Append flights from both directions
+                pairs.append((dest, origin))
+                pairs.append((origin, dest))
+
+    log.info(f"There are {len(pairs)} airport pairs")
+
+    limit = config["AIRPORTS"]["LIMIT"]
+
+    if int(limit) > 0:
+
+        pairs = pairs[:limit]
+        log.info(f"Limiting the query to {limit} pairs")
+
+    return pairs
+
+
+def retrive_all_flights():
+    """
+        Get all flights of each pair and export them as a csv for each pair
+    """
+
+    airports_pairs = get_pairs()
     total_pairs = len(airports_pairs)
 
     for i, (origin, dest) in enumerate(airports_pairs):
