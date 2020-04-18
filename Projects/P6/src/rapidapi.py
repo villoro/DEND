@@ -1,3 +1,4 @@
+import os
 import requests
 from time import sleep
 from datetime import date, timedelta
@@ -226,6 +227,11 @@ def main():
         Get all flights of each pair and export them as a csv for each pair
     """
 
+    path_raw = config["PATHS"]["DATA"] + f"flights/{date.today():%Y_%m_%d}/"
+
+    # Create folder
+    os.makedirs(path_raw, exist_ok=True)
+
     airports_pairs = get_pairs()
     total_pairs = len(airports_pairs)
 
@@ -235,6 +241,6 @@ def main():
         df = query_pair(origin, dest)
 
         if df is not None:
-            uri = f"{config['PATHS']['DATA']}flights/{origin}_{dest}.csv"
+            uri = f"{path_raw}{origin}_{dest}.csv"
             df.to_csv(uri, index=False)
             log.debug(f"Exporting '{uri}'")

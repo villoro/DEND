@@ -2,6 +2,7 @@
     Log utilities using loguru
 """
 
+import os
 import sys
 import configparser
 from datetime import date
@@ -10,7 +11,10 @@ from loguru import logger as log
 
 
 config = configparser.ConfigParser()
-config.read("config.cfg")
+
+# Handle readings from inside src folder
+path_root = "../" if os.getcwd().endswith("src") else ""
+config.read(f"{path_root}config.cfg")
 
 LOG_CONFIG = {
     "handlers": [

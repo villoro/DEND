@@ -10,8 +10,18 @@ class GetAirportsTask(StandardTask):
     module = "airports"
 
 
+class CheckAirportsTask(StandardTask):
+    module = "check_airports"
+
+    def requires(self):
+        yield GetAirportsTask()
+
+
 class RapidApiTask(StandardTask):
     module = "rapidapi"
+
+    def requires(self):
+        yield CheckAirportsTask()
 
 
 class CheckCsvsTask(StandardTask):
@@ -31,7 +41,6 @@ class MergeDataTask(StandardTask):
 class DoAllTask(luigi.WrapperTask):
     def requires(self):
         yield MergeDataTask()
-        yield GetAirportsTask()
 
 
 if __name__ == "__main__":
