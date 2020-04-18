@@ -146,7 +146,7 @@ def parse_data(data):
     df = fix_places(df, data)
     df = fix_carriers(df, data)
 
-    df[c.COL_INSTERTED] = pd.to_datetime(date.today())
+    df[c.COL_INSTERTED] = date.today().strftime("%Y_%m_%d")
 
     return df
 
