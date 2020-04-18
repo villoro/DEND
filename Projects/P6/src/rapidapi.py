@@ -4,7 +4,6 @@ from datetime import date, timedelta
 
 import pandas as pd
 
-from . import constants as c
 from utilities import config, log
 
 BASE_URL = (
@@ -80,7 +79,7 @@ def fix_places(df, data):
     places = df_places.set_index("PlaceId")["IataCode"].to_dict()
 
     # Rename places for origin and destination
-    for x in [c.COL_ORIGIN, c.COL_DESTINATION]:
+    for x in ["Origin", "Destination"]:
         df[x] = df[f"{x}Id"].replace(places)
         df = df.drop(f"{x}Id", axis=1)
 
@@ -100,7 +99,7 @@ def fix_carriers(df, data):
     carriers = df_carriers.set_index("CarrierId")["Name"].to_dict()
 
     # Rename carriers
-    df[c.COL_CARRIER] = df[c.COL_CARRIER].replace(carriers)
+    df["Carrier"] = df["Carrier"].replace(carriers)
 
     return df
 
@@ -118,7 +117,7 @@ def retrive_quotes(data):
         # For all possible Carrier, create an entry
         for carrier in quote.pop("CarrierIds"):
             aux = quote.copy()
-            aux.update({c.COL_CARRIER: carrier})
+            aux.update({"Carrier": carrier})
 
             out.append(aux)
 
@@ -137,16 +136,18 @@ def parse_data(data):
     df = retrive_quotes(data)
 
     # Rename columns
-    df = df.rename(columns=c.COL_RENAMES)
+    df = df.rename(
+        columns={"MinPrice": "Price", "QuoteDateTime": "Quote_date", "DepartureDate": "Date"}
+    )
 
     # Fix dates
-    for x in [c.COL_QUOTE_DATE, c.COL_DATE]:
+    for x in ["Quote_date", "Date"]:
         df[x] = pd.to_datetime(df[x])
 
     df = fix_places(df, data)
     df = fix_carriers(df, data)
 
-    df[c.COL_INSTERTED] = date.today().strftime("%Y_%m_%d")
+    df["Inserted"] = date.today().strftime("%Y_%m_%d")
 
     return df
 
@@ -183,3 +184,25 @@ def query_pair(origin, destination, n_days=366):
         return pd.concat(dfs).reset_index(drop=True)
     else:
         log.warning(f"No flights from '{origin}' to '{destination}'")
+
+
+def retrive_all_flights(airports_pairs):
+    """
+        Get a dataframe with all flights
+
+        Args:
+            airports_pairs:  iterable with tuples containing tuple with 2 airports
+                             for example [("BCN", "CAG"), ("GRO", "CAG")]
+    """
+
+    total_pairs = len(airports_pairs)
+
+    for i, (origin, dest) in enumerate(airports_pairs):
+
+        log.info(f"Quering flights from '{origin}' to '{dest}' ({i + 1}/{total_pairs})")
+        df = query_pair(origin, dest)
+
+        if df is not None:
+            uri = f"{config['PATHS']['DATA']}flights/{origin}_{dest}.csv"
+            df.to_csv(uri, index=False)
+            log.debug(f"Exporting '{uri}'")
