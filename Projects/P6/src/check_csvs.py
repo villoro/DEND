@@ -7,7 +7,7 @@ from pyspark.sql import SparkSession
 from utilities import log, config
 
 
-def check(path=f"{config['PATHS']['DATA']}flights/",):
+def main(path=f"{config['PATHS']['DATA']}flights/",):
     """ Check data there is data in the flights folder """
 
     spark = SparkSession.builder.getOrCreate()

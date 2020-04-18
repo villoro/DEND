@@ -7,7 +7,7 @@ from pyspark.sql import SparkSession
 from utilities import log, config
 
 
-def merge(
+def main(
     uri_in=f"{config['PATHS']['DATA']}flights/*.csv",
     uri_out=f"{config['PATHS']['DATA']}flights.parquet",
 ):

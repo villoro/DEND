@@ -217,9 +217,9 @@ def get_pairs():
 
     log.info(f"There are {len(pairs)} airport pairs")
 
-    limit = config["AIRPORTS"]["LIMIT"]
+    limit = int(config["AIRPORTS"]["LIMIT"])
 
-    if int(limit) > 0:
+    if limit > 0:
 
         pairs = pairs[:limit]
         log.info(f"Limiting the query to {limit} pairs")
@@ -227,7 +227,7 @@ def get_pairs():
     return pairs
 
 
-def retrive_all_flights():
+def main():
     """
         Get all flights of each pair and export them as a csv for each pair
     """

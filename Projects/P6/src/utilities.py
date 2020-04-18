@@ -10,7 +10,7 @@ from loguru import logger as log
 
 
 config = configparser.ConfigParser()
-config.read("../config.cfg")
+config.read("config.cfg")
 
 LOG_CONFIG = {
     "handlers": [

@@ -56,7 +56,7 @@ def fix_encodings(dfi):
     return df
 
 
-def store_airports():
+def main():
     """ Read the airport data from internet and store it as a pickle """
 
     df = get_airports()
